@@ -1,0 +1,427 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="referrer" content="always" />
+  <meta name="description" content="Calculadora de inflación - Una herramienta simple para conocer el impacto de la inflación en tu dinero. Ingresa valores y obtén resultados precisos al instante." />
+  <meta name="keywords" content="calculadora de inflación, inflación, IPC, finanzas, ahorro, economía" />
+  <title>Calculadora de Inflación Argentina</title>
+  <link href="" rel="canonical" />
+  <style>
+    /* Reset */
+    *, *::before, *::after {
+      box-sizing: border-box;
+    }
+    body {
+      font-family: 'Poppins', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      margin: 0;
+      min-height: 100vh;
+      background: linear-gradient(135deg, #f0f4f8, #d9e2ec);
+      color: #2c3e50;
+      display: flex;
+      flex-direction: column;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+    a {
+      color: #3b82f6;
+      font-weight: 600;
+      text-decoration: none;
+      transition: color 0.3s ease;
+    }
+    a:hover {
+      color: #1d4ed8;
+      text-decoration: underline;
+    }
+    /* Header */
+    header {
+      background: rgba(255 255 255 / 0.72);
+      backdrop-filter: saturate(180%) blur(15px);
+      -webkit-backdrop-filter: saturate(180%) blur(15px);
+      box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.1);
+      padding: 22px 48px;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: center;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    header h1 {
+      margin: 0;
+      font-weight: 700;
+      font-size: 2rem;
+      color: #16425b;
+      user-select: none;
+      letter-spacing: 0.04em;
+    }
+    nav {
+      display: flex;
+      gap: 28px;
+      flex-wrap: wrap;
+      margin-top: 8px;
+    }
+    nav a {
+      background: #f0f9ff;
+      padding: 8px 18px;
+      border-radius: 14px;
+      color: #1e40af;
+      font-weight: 600;
+      transition: background-color 0.3s ease, color 0.3s ease;
+      box-shadow: 0 4px 8px rgb(59 130 246 / 0.15);
+      user-select: none;
+    }
+    nav a:hover, nav a.active {
+      background: #1e40af;
+      color: white;
+      font-weight: 700;
+      box-shadow: 0 8px 20px rgb(30 64 175 / 0.4);
+    }
+    .dropdown-container {
+      margin-top: 8px;
+      min-width: 260px;
+    }
+    select {
+      width: 100%;
+      max-width: 280px;
+      padding: 12px 18px;
+      font-weight: 700;
+      font-size: 1rem;
+      color: #1e40af;
+      background: #f0f9ff;
+      border-radius: 18px;
+      border: 2.5px solid #3b82f6;
+      box-shadow: inset 0 4px 10px rgba(59,130,246,0.15);
+      cursor: pointer;
+      user-select: none;
+      transition:
+        box-shadow 0.3s ease,
+        border-color 0.3s ease,
+        background-color 0.3s ease;
+      appearance: none;
+      outline-offset: 4px;
+    }
+    select:focus {
+      outline: none;
+      border-color: #1e40af;
+      box-shadow: 0 0 18px #2563ebaa;
+      background-color: #dbeafe;
+    }
+    /* Main container */
+    main {
+      flex: 1;
+      max-width: 880px;
+      margin: 64px auto 80px;
+      padding: 0 30px;
+      display: flex;
+      flex-direction: column;
+      gap: 48px;
+      background: white;
+      border-radius: 32px;
+      box-shadow: 0 15px 40px rgba(50, 115, 155, 0.15);
+      user-select: text;
+    }
+    article {
+      text-align: center;
+      line-height: 1.55;
+      color: #334e68;
+      font-size: 1.15rem;
+    }
+    article h2 {
+      font-weight: 800;
+      color: #16425b;
+      font-size: 2.2rem;
+      margin-bottom: 18px;
+      letter-spacing: 0.05em;
+    }
+    /* Calculator card */
+    .calculator {
+      background: #eff6ff;
+      border-radius: 32px;
+      padding: 36px 48px;
+      box-shadow: 0 15px 38px rgba(30, 64, 175, 0.1);
+      display: flex;
+      flex-direction: column;
+      gap: 22px;
+      user-select: none;
+    }
+    label {
+      font-weight: 700;
+      font-size: 1.1rem;
+      color: #1e40af;
+      margin-bottom: 8px;
+      transition: color 0.3s ease;
+    }
+    input[type=number] {
+      font-size: 1.25rem;
+      font-weight: 700;
+      letter-spacing: 0.02em;
+      color: #1c3d5a;
+      padding: 16px 20px;
+      border-radius: 24px;
+      border: 3px solid transparent;
+      background: #dbeafe;
+      transition:
+        border-color 0.3s ease,
+        box-shadow 0.3s ease,
+        background-color 0.3s ease;
+      box-shadow: inset 0 6px 15px rgb(219 234 254 / 0.7);
+      user-select: text;
+    }
+    input[type=number]:focus {
+      outline: none;
+      background: #c7dafe;
+      border-color: #2563eb;
+      box-shadow: 0 0 22px #2563ebcc;
+    }
+    button {
+      background: linear-gradient(135deg, #2563eb, #1e40af);
+      color: white;
+      font-weight: 800;
+      font-size: 1.4rem;
+      padding: 18px 0;
+      border-radius: 36px;
+      border: none;
+      cursor: pointer;
+      box-shadow: 0 12px 40px rgb(30 64 175 / 0.33);
+      transition:
+        box-shadow 0.3s ease,
+        background 0.3s ease;
+      user-select: none;
+    }
+    button:hover {
+      background: linear-gradient(135deg, #1e40af, #1741a0);
+      box-shadow: 0 16px 50px rgb(30 64 175 / 0.5);
+    }
+    .result {
+      background: #dbeafe;
+      border-radius: 32px;
+      color: #2563eb;
+      font-weight: 900;
+      font-size: 1.75rem;
+      padding: 30px 20px;
+      text-align: center;
+      box-shadow: 0 10px 38px rgb(37 99 235 / 0.3);
+      letter-spacing: 0.025em;
+      user-select: text;
+      min-height: 70px;
+      transition: background-color 0.3s ease;
+    }
+    /* CTA button */
+    .cta-button {
+      display: block;
+      max-width: 320px;
+      margin: 0 auto 36px;
+      padding: 16px 0;
+      font-weight: 800;
+      font-size: 1.15rem;
+      text-align: center;
+      color: white;
+      border-radius: 36px;
+      background: #2563eb;
+      text-decoration: none;
+      box-shadow: 0 12px 40px #2563ebcc;
+      transition: background 0.3s ease, box-shadow 0.3s ease;
+      user-select: none;
+      width: max-content;
+    }
+    .cta-button:hover {
+      background: #1e40af;
+      box-shadow: 0 16px 50px #1e40afcc;
+    }
+    .author-profile {
+      text-align: center;
+      font-weight: 600;
+      font-size: 1rem;
+      color: #4a6a81;
+      user-select: none;
+    }
+    /* Article styling */
+    .info-article {
+      text-align: left;
+      color: #2e4a62;
+      font-size: 1rem;
+      line-height: 1.6;
+      max-width: 900px;
+      margin: 0 auto 40px;
+      user-select: text;
+    }
+    .info-article h3 {
+      font-weight: 700;
+      margin-top: 1.6em;
+      color: #16425b;
+    }
+    .info-article ul {
+      list-style-type: disc;
+      margin-left: 20px;
+    }
+    .info-article li {
+      margin-bottom: 8px;
+    }
+    .info-article a {
+      color: #2563eb;
+      font-weight: 600;
+    }
+    footer {
+      padding: 30px 20px;
+      text-align: center;
+      color: #7b8d9d;
+      font-size: 0.9rem;
+      user-select: none;
+      background: #f0f4f8;
+      border-top: 1px solid #e1e6ec;
+    }
+    /* Responsive styles */
+    @media (max-width: 880px) {
+      main {
+        margin: 48px 24px 64px;
+        max-width: 90vw;
+      }
+      header {
+        justify-content: center;
+      }
+      nav {
+        justify-content: center;
+        margin-top: 12px;
+        gap: 16px;
+      }
+      .dropdown-container {
+        margin-top: 14px;
+        max-width: 300px;
+        width: 100%;
+      }
+      header h1 {
+        flex-basis: 100%;
+        text-align: center;
+        margin-bottom: 16px;
+      }
+      button {
+        font-size: 1.25rem;
+      }
+      .result {
+        min-height: 60px;
+        font-size: 1.5rem;
+        padding: 22px 14px;
+      }
+      .info-article {
+        font-size: 0.95rem;
+        line-height: 1.5;
+        margin-bottom: 24px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Calculadora de Inflación Argentina</h1>
+    <nav>
+      <a href="index.html" class="active">Inicio</a>
+      <a href="contacto.html">Contacto</a>
+      <a href="politica-privacidad.html">Política de Privacidad</a>
+      <a href="sobre-nosotros.html">Sobre Nosotros</a>
+      <a href="sops.html">SOPs</a>
+    </nav>
+    <div class="dropdown-container">
+      <select id="pageSelector" aria-label="Seleccionar país para calculadora de inflación">
+        <option value="https://calculadorade-inflacion.com/index.html" selected>Argentina</option>
+        <option value="https://calculadorade-inflacion.com/calculadora-ipc-chile.html">Chile</option>
+        <option value="https://calculadorade-inflacion.com/colombia.html">Colombia</option>
+        <option value="https://calculadorade-inflacion.com/mexico.html">México</option>
+        <option value="https://calculadorade-inflacion.com/paraguay.html">Paraguay</option>
+        <option value="https://calculadorade-inflacion.com/peru.html">Perú</option>
+        <option value="https://calculadorade-inflacion.com/uruguay.html">Uruguay</option>
+        <option value="https://calculadorade-inflacion.com/united-state.html">Estados Unidos</option>
+      </select>
+    </div>
+  </header>
+
+  <main>
+    <article>
+      <h2>Conozca el impacto real de la inflación en su dinero</h2>
+      <p>Ingrese el monto inicial, la tasa de inflación anual y el número de años para calcular el valor ajustado por inflación.</p>
+    </article>
+
+    <section class="calculator" aria-labelledby="calculatorLabel">
+      <label id="calculatorLabel" for="initialAmount">Monto inicial (en ARS):</label>
+      <input type="number" id="initialAmount" placeholder="Ejemplo: 10000" min="0" />
+
+      <label for="inflationRate">Tasa de inflación anual (%):</label>
+      <input type="number" id="inflationRate" placeholder="Ejemplo: 45.00" min="0" step="0.01" />
+
+      <label for="years">Número de años:</label>
+      <input type="number" id="years" placeholder="Ejemplo: 3" min="0" step="1" />
+
+      <button onclick="calcularInflacion()">Calcular</button>
+
+      <div class="result" id="result"></div>
+    </section>
+
+    <a href="https://calculadorade-inflacion.com/index.html" class="cta-button" id="calculatorCTA">
+      Calculadora de Inflación Argentina
+    </a>
+
+    <section class="info-article" aria-label="Artículo sobre calculadora de inflación Colombia">
+      <h3>Calculadora de Inflación Colombia</h3>
+      <p>La inflación es un tema que afecta el bolsillo de todos los colombianos. Cada año, los precios de productos y servicios cambian, lo que reduce el poder adquisitivo del dinero. Para entender mejor este impacto, una <a href="https://calculadorade-inflacion.com/index.html" target="_blank" rel="noopener noreferrer">Calculadora de Inflación</a> en Colombia es una herramienta muy útil.</p>
+      <h3>¿Qué es la calculadora de inflación?</h3>
+      <p>La calculadora de inflación permite conocer cuánto ha variado el valor de tu dinero con el paso del tiempo. Por ejemplo, si en 2015 comprabas con $100.000 cierto mercado, hoy, con la misma cantidad, ya no podrías comprar lo mismo debido al aumento de los precios.</p>
+      <p>Esta herramienta usa los datos oficiales del Índice de Precios al Consumidor (IPC), publicado por el DANE (Departamento Administrativo Nacional de Estadística), que es la entidad encargada de medir la inflación en Colombia.</p>
+      <h3>¿Cómo funciona la calculadora de inflación Colombia?</h3>
+      <p>El uso es muy sencillo:<br/>
+         Ingresas un valor inicial (por ejemplo, $500.000).<br/>
+         Seleccionas el año de referencia.<br/>
+         El sistema calcula cuánto equivale ese dinero en la actualidad, teniendo en cuenta la inflación acumulada.<br/>
+         De esta manera puedes saber si tu dinero perdió valor o cuánto más necesitas para comprar lo mismo.</p>
+      <h3>¿Para qué sirve la calculadora de inflación?</h3>
+      <ul>
+        <li>Planificación financiera: te ayuda a entender cómo la inflación afecta tus ahorros.</li>
+        <li>Negocios y empresas: permite ajustar precios o salarios de acuerdo con el poder adquisitivo real.</li>
+        <li>Ahorros e inversiones: puedes comparar rendimientos con la inflación y saber si realmente ganaste dinero.</li>
+      </ul>
+      <h3>Ejemplo práctico</h3>
+      <p>Si en 2010 tenías $1.000.000 en ahorros, al calcular la inflación hasta 2025, descubrirías que el poder de compra real de ese dinero es mucho menor. Eso significa que, aunque la cifra es la misma, puedes comprar mucho menos con ese millón hoy.</p>
+      <h3>Conclusión</h3>
+      <p>La calculadora de inflación Colombia es clave para que cualquier persona comprenda cómo cambia el valor del dinero con el tiempo. En un país donde la inflación impacta directamente en la canasta familiar y en la economía diaria, usar esta herramienta es una forma práctica de tomar mejores decisiones financieras.</p>
+    </section>
+
+    <div class="author-profile">
+        <h3>Autor: ASM Company</h3>
+      <p> - Especialista en economía y finanzas</p>
+    </div>
+  </main>
+
+  <footer>
+    <p>&copy; 2025 Calculadora de Inflación. Todos los derechos reservados.</p>
+  </footer>
+
+  <script>
+    document.getElementById('pageSelector').addEventListener('change', function () {
+      const url = this.value;
+      if (url) {
+        window.location.href = url;
+      }
+    });
+
+    function calcularInflacion() {
+      const montoInicial = parseFloat(document.getElementById('initialAmount').value);
+      const tasaInflacion = parseFloat(document.getElementById('inflationRate').value);
+      const anos = parseInt(document.getElementById('years').value, 10);
+      const resultDiv = document.getElementById('result');
+
+      if (
+        isNaN(montoInicial) || montoInicial < 0 ||
+        isNaN(tasaInflacion) || tasaInflacion < 0 ||
+        isNaN(anos) || anos < 0
+      ) {
+        resultDiv.textContent = 'Por favor, ingrese valores válidos y no negativos.';
+        return;
+      }
+
+      const montoFinal = montoInicial * Math.pow(1 + tasaInflacion / 100, anos);
+      resultDiv.textContent = `Monto ajustado por inflación después de ${anos} año(s): ARS ${montoFinal.toFixed(2)}`;
+    }
+  </script>
+</body>
+</html>
